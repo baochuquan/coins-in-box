@@ -18,6 +18,8 @@ class GameScene: SKScene {
     private let impact = UIImpactFeedbackGenerator(style: .soft)
     private var debounceTimer: Timer?
     private var debounceEnable = false
+    private let boxBodyImage = UIImageView(image: UIImage(named: "box-body"))
+    private let boxCapImage = UIImageView(image: UIImage(named: "box-cap"))
 
     override func didMove(to view: SKView) {
 
@@ -33,10 +35,50 @@ class GameScene: SKScene {
                                               SKAction.fadeOut(withDuration: 0.5),
                                               SKAction.removeFromParent()]))
         }
-        physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
         physicsWorld.contactDelegate = self
 
-        for _ in 0 ..< 50 {
+        // 绘制瓶子
+        let image = UIImage(named: "box-body")
+        let size = image?.size ?? .zero
+        print("body size => \(size)")
+        let cornerRadius: CGFloat = 75
+        let path = CGMutablePath()
+        path.move(to: CGPoint(x: 0, y: cornerRadius))
+        path.addArc(tangent1End: CGPoint(x: 0, y: 0),
+                    tangent2End: CGPoint(x: cornerRadius, y: 0),
+                    radius: cornerRadius)
+        path.addLine(to: CGPoint(x: size.width - cornerRadius, y: 0))
+        path.addArc(tangent1End: CGPoint(x: size.width, y: 0),
+                    tangent2End: CGPoint(x: size.width, y: cornerRadius),
+                    radius: cornerRadius)
+        path.addLine(to: CGPoint(x: size.width, y: size.height - cornerRadius))
+        path.addArc(tangent1End: CGPoint(x: size.width, y: size.height),
+                    tangent2End: CGPoint(x: size.width - cornerRadius, y: size.height),
+                    radius: cornerRadius)
+        path.addLine(to: CGPoint(x: cornerRadius, y: size.height))
+        path.addArc(tangent1End: CGPoint(x: 0, y: size.height),
+                    tangent2End: CGPoint(x: 0, y: size.height - cornerRadius),
+                    radius: cornerRadius)
+        path.addLine(to: CGPoint(x: 0, y: cornerRadius))
+
+        let boxtexture = SKTexture(imageNamed: "box-body")
+        let boxbody = SKPhysicsBody(edgeLoopFrom: path)
+        let boxnode = SKSpriteNode(texture: boxtexture, size: size)
+        boxnode.anchorPoint = .zero//CGPoint(x: size.width * 0.5, y: size.height * 0.5)
+        boxnode.physicsBody = boxbody
+        boxnode.position = CGPoint(x: -size.width * 0.5, y: -size.height * 0.5)
+        boxnode.zPosition = -1
+        addChild(boxnode)
+
+        // 绘制盖子
+        let captexture = SKTexture(imageNamed: "box-cap")
+        let capnode = SKSpriteNode(texture: captexture)
+        capnode.position = CGPoint(x: size.width * 0.5, y: size.height)
+        capnode.zPosition = 2
+        boxnode.addChild(capnode)
+
+        // 绘制金币
+        for _ in 0 ..< 10 {
             let texture = SKTexture(imageNamed: "icon_qa_coin")
             let node = SKSpriteNode(texture: texture)
             let body = SKPhysicsBody(texture: texture, size: CGSize(width: node.size.width, height: node.size.height))
@@ -47,7 +89,7 @@ class GameScene: SKScene {
             body.contactTestBitMask = 1
             body.velocity = CGVector(dx: Double(arc4random() % 500) - 250.0, dy: Double(arc4random() % 500) - 250.0)
             node.physicsBody = body
-            node.position = CGPoint(x: 0, y: 0)
+            node.position = .zero
             node.zPosition = 0
             addChild(node)
         }
@@ -59,15 +101,7 @@ class GameScene: SKScene {
         if manager.isAccelerometerAvailable {
             manager.accelerometerUpdateInterval = 0.05
             manager.startAccelerometerUpdates(to: OperationQueue.main) { data, error in
-//                print("acceData => \(data)")
                 self.physicsWorld.gravity = CGVector(dx: (data?.acceleration.x ?? 0.0) * 9.8, dy: (data?.acceleration.y ?? 0.0) * 9.8)
-            }
-        }
-        if manager.isGyroAvailable {
-            manager.gyroUpdateInterval = 0.5
-            manager.startGyroUpdates(to: OperationQueue.main) { data, error in
-//                print("gyroData => \(data)")
-//                self.world.gravity = CGVector(dx: data?.rotationRate.x ?? 0, dy: data?.rotationRate.y ?? 0)
             }
         }
     }
@@ -140,7 +174,7 @@ extension GameScene: SKPhysicsContactDelegate {
         if contact.bodyA.contactTestBitMask == 1 && contact.bodyB.contactTestBitMask == 1 {
             self.debounceEnable = true
         }
-        print("didBegin => \(contact.collisionImpulse)")
+//        print("didBegin => \(contact.collisionImpulse)")
     }
 
     func didEnd(_ contact: SKPhysicsContact) {

@@ -15,6 +15,7 @@
 		650088282A14F9E700932364 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 650088262A14F9E700932364 /* Main.storyboard */; };
 		6500882A2A14F9E800932364 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 650088292A14F9E800932364 /* Assets.xcassets */; };
 		6500882D2A14F9E800932364 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6500882B2A14F9E800932364 /* LaunchScreen.storyboard */; };
+		65F7B3CF2A16022D002F73B6 /* ScreenshotViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F7B3CE2A16022D002F73B6 /* ScreenshotViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,6 +28,7 @@
 		650088272A14F9E700932364 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		650088292A14F9E800932364 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		6500882C2A14F9E800932364 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		65F7B3CE2A16022D002F73B6 /* ScreenshotViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -64,6 +66,7 @@
 				650088202A14F9E700932364 /* Actions.sks */,
 				650088222A14F9E700932364 /* GameScene.swift */,
 				650088242A14F9E700932364 /* GameViewController.swift */,
+				65F7B3CE2A16022D002F73B6 /* ScreenshotViewController.swift */,
 				650088262A14F9E700932364 /* Main.storyboard */,
 				650088292A14F9E800932364 /* Assets.xcassets */,
 				6500882B2A14F9E800932364 /* LaunchScreen.storyboard */,
@@ -146,6 +149,7 @@
 			files = (
 				650088232A14F9E700932364 /* GameScene.swift in Sources */,
 				650088252A14F9E700932364 /* GameViewController.swift in Sources */,
+				65F7B3CF2A16022D002F73B6 /* ScreenshotViewController.swift in Sources */,
 				6500881D2A14F9E600932364 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
