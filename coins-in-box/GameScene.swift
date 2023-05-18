@@ -8,12 +8,16 @@
 import SpriteKit
 import GameplayKit
 import CoreMotion
+import AudioToolbox
 
 class GameScene: SKScene {
     
     private var label : SKLabelNode?
     private var spinnyNode : SKShapeNode?
     private let manager = CMMotionManager()
+    private let impact = UIImpactFeedbackGenerator(style: .soft)
+    private var debounceTimer: Timer?
+    private var debounceEnable = false
 
     override func didMove(to view: SKView) {
 
@@ -30,15 +34,17 @@ class GameScene: SKScene {
                                               SKAction.removeFromParent()]))
         }
         physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
+        physicsWorld.contactDelegate = self
 
-        for _ in 0 ..< 10 {
+        for _ in 0 ..< 50 {
             let texture = SKTexture(imageNamed: "icon_qa_coin")
             let node = SKSpriteNode(texture: texture)
             let body = SKPhysicsBody(texture: texture, size: CGSize(width: node.size.width, height: node.size.height))
             body.isDynamic = true
             body.affectedByGravity = true
             body.allowsRotation = true
-            body.restitution = 0.8
+            body.restitution = 0.6
+            body.contactTestBitMask = 1
             body.velocity = CGVector(dx: Double(arc4random() % 500) - 250.0, dy: Double(arc4random() % 500) - 250.0)
             node.physicsBody = body
             node.position = CGPoint(x: 0, y: 0)
@@ -46,23 +52,35 @@ class GameScene: SKScene {
             addChild(node)
         }
         useGyroPush()
+        setupDebounceImpact()
     }
 
     func useGyroPush() {
         if manager.isAccelerometerAvailable {
             manager.accelerometerUpdateInterval = 0.05
             manager.startAccelerometerUpdates(to: OperationQueue.main) { data, error in
-                print("acceData => \(data)")
+//                print("acceData => \(data)")
                 self.physicsWorld.gravity = CGVector(dx: (data?.acceleration.x ?? 0.0) * 9.8, dy: (data?.acceleration.y ?? 0.0) * 9.8)
             }
         }
         if manager.isGyroAvailable {
             manager.gyroUpdateInterval = 0.5
             manager.startGyroUpdates(to: OperationQueue.main) { data, error in
-                print("gyroData => \(data)")
+//                print("gyroData => \(data)")
 //                self.world.gravity = CGVector(dx: data?.rotationRate.x ?? 0, dy: data?.rotationRate.y ?? 0)
             }
         }
+    }
+
+    func setupDebounceImpact() {
+        debounceTimer?.invalidate()
+        debounceTimer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { [weak self] timer in
+            guard let self = self else { return }
+            guard self.debounceEnable else { return }
+            self.debounceEnable = false
+            self.impact.impactOccurred()
+        }
+        debounceTimer?.fire()
     }
     
     
@@ -113,5 +131,18 @@ class GameScene: SKScene {
     
     override func update(_ currentTime: TimeInterval) {
         // Called before each frame is rendered
+    }
+}
+
+extension GameScene: SKPhysicsContactDelegate {
+    func didBegin(_ contact: SKPhysicsContact) {
+        guard contact.collisionImpulse > 2 else { return }
+        if contact.bodyA.contactTestBitMask == 1 && contact.bodyB.contactTestBitMask == 1 {
+            self.debounceEnable = true
+        }
+        print("didBegin => \(contact.collisionImpulse)")
+    }
+
+    func didEnd(_ contact: SKPhysicsContact) {
     }
 }
